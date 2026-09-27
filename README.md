@@ -142,7 +142,7 @@ OpenWarpKit поддерживает Android-приложение и измен�
 
 - [Cloudflare WARP](https://one.one.one.one/)
 - [puzige/CloudflareWarpSpeedTest](https://github.com/puzige/CloudflareWarpSpeedTest)
-- [ampetelin/warp-endpoint-checker](https://github.com/ampetelin/warp-endpoint-checker)
+- ampetelin/warp-endpoint-checker (исходный репозиторий недоступен)
 - [TheyCallMeSecond/WARP-Endpoint-IP](https://github.com/TheyCallMeSecond/WARP-Endpoint-IP)
 - [SagePtr/mini_quic_generator](https://github.com/SagePtr/mini_quic_generator)
 - [Diniboy1123/usque](https://github.com/Diniboy1123/usque)
