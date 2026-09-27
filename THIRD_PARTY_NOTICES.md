@@ -7,7 +7,7 @@ WARPSCOUT for Android includes or builds against third-party software. The corre
 | WARPSCOUT CLI | https://github.com/vernette/warpscout | MIT |
 | amneziawg-go | https://github.com/amnezia-vpn/amneziawg-go | MIT |
 | usque | https://github.com/Diniboy1123/usque | MIT |
-| Go Mobile | https://go.googlesource.com/mobile | BSD 3-Clause |
+| Go Mobile | https://github.com/golang/mobile | BSD 3-Clause |
 | WireGuard Go | https://github.com/WireGuard/wireguard-go | MIT |
 | gVisor | https://github.com/google/gvisor | Apache License 2.0 |
 | Bubble Tea | https://github.com/charmbracelet/bubbletea | MIT |
