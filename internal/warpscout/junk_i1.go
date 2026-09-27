@@ -93,8 +93,8 @@ func findJunkI1Candidates(custom string) []i1Candidate {
 	return []i1Candidate{
 		{chain: i1Default},
 		{chain: findJunkI1Second},
-		{chain: findJunkI1Third},
 		{chain: findJunkI1Fourth},
 		{chain: findJunkI1Fifth},
+		{chain: i1Legacy},
 	}
 }

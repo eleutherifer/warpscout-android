@@ -143,7 +143,9 @@ func i1NoteFor(i1, label string) string {
 	case "":
 		return "no I1"
 	case i1Default:
-		return "default iCloud I1"
+		return "default QUIC I1"
+	case i1Legacy:
+		return "legacy iCloud I1"
 	}
 	return "custom I1"
 }

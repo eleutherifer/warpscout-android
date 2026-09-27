@@ -55,6 +55,7 @@ type ScanOptions struct {
 	AWGJunkMin          int      `json:"awgJunkMin"`
 	AWGJunkMax          int      `json:"awgJunkMax"`
 	AWGI1               string   `json:"awgI1,omitempty"`
+	AWGAutoI1           *bool    `json:"awgAutoI1,omitempty"`
 	MASQUESNI           string   `json:"masqueSni,omitempty"`
 	MASQUEAttempts      int      `json:"masqueAttempts"`
 	IncludeNodes        []string `json:"includeNodes,omitempty"`
@@ -87,6 +88,7 @@ type EndpointResult struct {
 }
 
 type ScanReport struct {
+	AWGI1      string           `json:"awgI1,omitempty"`
 	Protocol   Protocol         `json:"protocol"`
 	StartedAt  time.Time        `json:"startedAt"`
 	FinishedAt time.Time        `json:"finishedAt"`
@@ -98,8 +100,8 @@ type ProgressEvent struct {
 	Operation     Operation       `json:"operation"`
 	Type          string          `json:"type"`
 	Phase         string          `json:"phase,omitempty"`
-	Completed     int             `json:"completed,omitempty"`
-	Total         int             `json:"total,omitempty"`
+	Completed     int             `json:"completed"`
+	Total         int             `json:"total"`
 	Message       string          `json:"message,omitempty"`
 	Endpoint      *EndpointResult `json:"endpoint,omitempty"`
 	Payload       json.RawMessage `json:"payload,omitempty"`

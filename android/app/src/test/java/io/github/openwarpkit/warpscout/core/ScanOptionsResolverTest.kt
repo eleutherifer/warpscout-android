@@ -7,6 +7,31 @@ import org.junit.Test
 
 class ScanOptionsResolverTest {
     @Test
+    fun automaticI1IgnoresManualInput() {
+        val resolved = resolveScanOptions(
+            ScanPreset.Standard, true, ExpertScanOptions(awgI1 = "<r 4>")
+        )
+        assertTrue(resolved.awgAutoI1)
+        assertEquals("", resolved.awgI1)
+    }
+
+    @Test
+    fun manualI1AndEmptyDefaultArePreserved() {
+        for (value in listOf("", "<r 4>")) {
+            val resolved = resolveScanOptions(
+                ScanPreset.Standard, true, ExpertScanOptions(awgAutoI1 = false, awgI1 = value)
+            )
+            assertFalse(resolved.awgAutoI1)
+            assertEquals(value, resolved.awgI1)
+        }
+        val preset = resolveScanOptions(
+            ScanPreset.Standard, false, ExpertScanOptions(awgAutoI1 = false, awgI1 = "<r 4>")
+        )
+        assertTrue(preset.awgAutoI1)
+        assertEquals("", preset.awgI1)
+    }
+
+    @Test
     fun disabledExpertModeUsesStandardValues() {
         val expert = ExpertScanOptions(
             protocol = "masque-h2",
@@ -128,6 +153,7 @@ class ScanOptionsResolverTest {
         assertEquals("example.com", profile.expert.pingTarget)
         assertEquals(7, profile.expert.awgJunkCount)
         assertEquals("custom-i1", profile.expert.awgI1)
+        assertFalse(profile.expert.awgAutoI1)
         assertEquals(listOf("FRA", "AMS"), profile.expert.includeNodes)
         assertEquals(listOf("DE", "NL"), profile.expert.includeCountries)
         assertEquals(listOf("1.1.1.1", "1.0.0.1"), profile.expert.dns)
@@ -146,5 +172,20 @@ class ScanOptionsResolverTest {
         assertEquals(ScanPreset.Standard, profile.preset)
         assertEquals("masque-h2", profile.expert.protocol)
         assertEquals("ping", profile.expert.bestBy)
+    }
+
+    @Test
+    fun historyRetainsAutomaticModeAndSelectedI1() {
+        val profile = historyScanProfile(
+            historyId = 42L,
+            presetId = "standard",
+            reportProtocol = "awg",
+            options = StoredScanOptions(awgI1 = "<b 0x1234>", awgAutoI1 = true)
+        )
+        assertTrue(profile.expert.awgAutoI1)
+        assertEquals("<b 0x1234>", profile.expert.awgI1)
+        val repeat = resolveScanOptions(profile.preset, true, profile.expert)
+        assertTrue(repeat.awgAutoI1)
+        assertEquals("", repeat.awgI1)
     }
 }

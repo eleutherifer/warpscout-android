@@ -148,6 +148,7 @@ internal enum class ScanSettingId(val label: Int) {
     SpeedTest(R.string.speed_test),
     AWGParameters(R.string.awg_parameters),
     AWGI1(R.string.awg_i1),
+    AWGAutoI1(R.string.awg_auto_i1),
     MASQUESNI(R.string.masque_sni),
     MASQUEAttempts(R.string.masque_attempts),
     IncludeNodes(R.string.include_nodes),
@@ -611,7 +612,8 @@ private fun localizedScanSettingValue(setting: ScanSettingValue): String = when 
     ScanSettingId.BestBy -> stringResource(
         if (setting.value == "speed") R.string.best_by_speed else R.string.best_by_ping
     )
-    ScanSettingId.SpeedTest -> stringResource(
+    ScanSettingId.SpeedTest,
+    ScanSettingId.AWGAutoI1 -> stringResource(
         if (setting.value == "enabled") R.string.setting_enabled else R.string.setting_disabled
     )
     ScanSettingId.AWGI1,
@@ -707,6 +709,7 @@ internal fun scanSettings(
             )
         )
         if (protocol == "awg") {
+            add(ScanSettingValue(ScanSettingId.AWGAutoI1, if (options.awgAutoI1) "enabled" else "disabled"))
             val junkCount = options.awgJunkCount.takeIf { it > 0 } ?: 6
             val junkMin = options.awgJunkMin.takeIf { it > 0 } ?: 10
             val junkMax = options.awgJunkMax.takeIf { it > 0 } ?: 50

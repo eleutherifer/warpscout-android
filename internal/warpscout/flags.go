@@ -120,7 +120,7 @@ var (
 		{"", "jc", "N", "junk packet count"},
 		{"", "jmin", "N", "min junk packet size"},
 		{"", "jmax", "N", "max junk packet size"},
-		{"", "i1", "PKT", "custom init packet, or \"none\" to send none (default: built-in iCloud probe)"},
+		{"", "i1", "PKT", "custom init packet, or \"none\" to send none (default: built-in QUIC probe)"},
 	}}
 
 	outputGroup = flagGroup{"Output", []flagSpec{

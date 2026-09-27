@@ -74,6 +74,10 @@ func (b *MobileBackend) Scan(ctx context.Context, input core.Account, scan core.
 	defer b.mu.Unlock()
 
 	started := time.Now().UTC()
+	autoI1 := scan.Protocol == core.ProtocolAWG && (scan.AWGAutoI1 == nil || *scan.AWGAutoI1)
+	if autoI1 {
+		scan.AWGI1 = ""
+	}
 	opts, err := mobileScanOptions(scan)
 	if err != nil {
 		return core.ScanReport{}, err
@@ -92,23 +96,33 @@ func (b *MobileBackend) Scan(ctx context.Context, input core.Account, scan core.
 	}
 
 	timeout := time.Duration(opts.timeoutSec) * time.Second
-	if opts.through != "" {
-		n, dialErr := dialOuter(ctx, opts, timeout)
-		if dialErr != nil {
-			return core.ScanReport{}, operationFailure(ctx, "outer_tunnel_failed", dialErr, true)
-		}
-		outer = n
-		defer func() {
-			n.tunnel.Close()
+	defer func() {
+		if outer != nil {
+			outer.tunnel.Close()
 			outer = nil
-		}()
-	}
+		}
+	}()
 
 	progress := newMobileEmitter(core.OperationScan, sink)
-	ph, err := runScan(ctx, opts, run, ips, timeout, progress.Emit)
+	ph, err := scanWithI1(ctx, autoI1, sink, func() (phaseResult, error) {
+		if outer != nil {
+			outer.tunnel.Close()
+			outer = nil
+		}
+		progress = newMobileEmitter(core.OperationScan, sink)
+		if opts.through != "" {
+			n, dialErr := dialOuter(ctx, opts, timeout)
+			if dialErr != nil {
+				return phaseResult{}, operationFailure(ctx, "outer_tunnel_failed", dialErr, true)
+			}
+			outer = n
+		}
+		return runScan(ctx, opts, run, ips, timeout, progress.Emit)
+	})
 	if err != nil {
 		return core.ScanReport{}, operationFailure(ctx, "scan_failed", err, true)
 	}
+	progress.completed, progress.total = len(ph.results), len(ph.results)
 	if filtered(opts) {
 		ph = applyFilters(ph, opts)
 	}
@@ -120,7 +134,12 @@ func (b *MobileBackend) Scan(ctx context.Context, input core.Account, scan core.
 	}
 
 	results := mobileResults(ph.results)
+	selectedI1 := ""
+	if run.isAWG() || opts.proto == protoAWG {
+		selectedI1 = awgI1
+	}
 	return core.ScanReport{
+		AWGI1:      selectedI1,
 		Protocol:   core.Protocol(run.name),
 		StartedAt:  started,
 		FinishedAt: time.Now().UTC(),
@@ -751,6 +770,7 @@ func (e *mobileEmitter) Emit(message tea.Msg) {
 	case barBeginMsg:
 		e.phase = value.label
 		e.completed = 0
+		event.Completed = 0
 		e.total = value.total
 		event.Phase = value.label
 		event.Total = value.total

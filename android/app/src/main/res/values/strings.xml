@@ -57,6 +57,8 @@
     <string name="inner_protocol">Inner protocol</string>
     <string name="awg_parameters">AWG parameters</string>
     <string name="awg_i1">AWG I1</string>
+    <string name="awg_auto_i1">Try built-in I1 profiles</string>
+    <string name="awg_auto_i1_description">Try up to five profiles until at least half the tunnels work. Otherwise, use the profile with the most working tunnels. Manual I1 is ignored. Turn off to use your I1, or the default QUIC profile if empty.</string>
     <string name="i1_domain">I1 domain</string>
     <string name="i1_domain_description">Creates a QUIC Initial mask and inserts it into I1.</string>
     <string name="generate_i1">Generate I1</string>

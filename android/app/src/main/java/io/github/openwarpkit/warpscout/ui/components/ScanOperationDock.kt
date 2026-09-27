@@ -111,7 +111,10 @@ fun ScanOperationDock(
             ) {
                 Text(
                     text = when {
-                        state.running -> state.phase.ifBlank { stringResource(R.string.phase_preparing) }
+                        state.running -> buildString {
+                            if (state.i1Total > 0) append("I1 ${state.i1Attempt}/${state.i1Total} · ")
+                            append(state.phase.ifBlank { stringResource(R.string.phase_preparing) })
+                        }
                         failed -> state.errorMessage.orEmpty().ifBlank { stringResource(R.string.status_failed) }
                         else -> stringResource(R.string.status_completed)
                     },

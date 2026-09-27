@@ -76,6 +76,7 @@ fun ScanScreen(viewModel: AppViewModel) {
     var junkMin by rememberSaveable { mutableStateOf("0") }
     var junkMax by rememberSaveable { mutableStateOf("0") }
     var i1 by rememberSaveable { mutableStateOf("") }
+    var autoI1 by rememberSaveable { mutableStateOf(true) }
     var i1Domain by rememberSaveable { mutableStateOf("") }
     var i1GenerationFailed by rememberSaveable { mutableStateOf(false) }
     var masqueSni by rememberSaveable { mutableStateOf("") }
@@ -101,6 +102,7 @@ fun ScanScreen(viewModel: AppViewModel) {
             junkMin = profile.junkMin.toString()
             junkMax = profile.junkMax.toString()
             i1 = profile.i1
+            autoI1 = false
         } else if (profile.protocol.startsWith("masque")) {
             masqueSni = profile.sni
             masqueAttempts = profile.attempts.coerceAtLeast(1).toString()
@@ -125,6 +127,7 @@ fun ScanScreen(viewModel: AppViewModel) {
         junkMin = selected.awgJunkMin.toString()
         junkMax = selected.awgJunkMax.toString()
         i1 = selected.awgI1
+        autoI1 = selected.awgAutoI1
         masqueSni = selected.masqueSni
         masqueAttempts = selected.masqueAttempts.toString()
         nodes = selected.includeNodes.joinToString(", ")
@@ -157,6 +160,7 @@ fun ScanScreen(viewModel: AppViewModel) {
                 awgJunkMin = junkMin.intOr(0),
                 awgJunkMax = junkMax.intOr(0),
                 awgI1 = i1.trim(),
+                awgAutoI1 = autoI1,
                 masqueSni = masqueSni.trim(),
                 masqueAttempts = masqueAttempts.intOr(3),
                 includeNodes = nodes.stringList(),
@@ -185,6 +189,7 @@ fun ScanScreen(viewModel: AppViewModel) {
             .put("awgJunkMin", resolved.awgJunkMin)
             .put("awgJunkMax", resolved.awgJunkMax)
             .put("awgI1", resolved.awgI1)
+            .put("awgAutoI1", resolved.awgAutoI1)
             .put("masqueSni", resolved.masqueSni)
             .put("masqueAttempts", resolved.masqueAttempts)
             .put("includeNodes", JSONArray(resolved.includeNodes))
@@ -343,8 +348,15 @@ fun ScanScreen(viewModel: AppViewModel) {
                             NumberField(junkMin, { junkMin = it }, "Jmin", Modifier.weight(1f))
                             NumberField(junkMax, { junkMax = it }, "Jmax", Modifier.weight(1f))
                         }
+                        ToggleRow(R.string.awg_auto_i1, autoI1) { autoI1 = it }
+                        Text(
+                            stringResource(R.string.awg_auto_i1_description),
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant
+                        )
                         OutlinedTextField(
                             value = i1,
+                            enabled = !autoI1,
                             onValueChange = { i1 = it },
                             label = { Text("I1") },
                             textStyle = MaterialTheme.typography.bodySmall.copy(fontFamily = FontFamily.Monospace),
@@ -354,6 +366,7 @@ fun ScanScreen(viewModel: AppViewModel) {
                         )
                         OutlinedTextField(
                             value = i1Domain,
+                            enabled = !autoI1,
                             onValueChange = {
                                 i1Domain = it
                                 i1GenerationFailed = false
@@ -375,7 +388,7 @@ fun ScanScreen(viewModel: AppViewModel) {
                             modifier = Modifier.fillMaxWidth()
                         )
                         OutlinedButton(
-                            enabled = i1Domain.isNotBlank(),
+                            enabled = !autoI1 && i1Domain.isNotBlank(),
                             onClick = {
                                 viewModel.generateI1(i1Domain.trim())
                                     .onSuccess {

@@ -57,6 +57,8 @@
     <string name="inner_protocol">Внутренний протокол</string>
     <string name="awg_parameters">Параметры AWG</string>
     <string name="awg_i1">AWG I1</string>
+    <string name="awg_auto_i1">Автоперебор I1</string>
+    <string name="awg_auto_i1_description">До пяти вариантов, пока не заработает хотя бы половина туннелей. Иначе выбирается I1 с наибольшим числом рабочих туннелей. Ручной I1 игнорируется. Выключите для своего I1; пустое поле использует QUIC по умолчанию.</string>
     <string name="i1_domain">Домен для I1</string>
     <string name="i1_domain_description">Создаёт маску QUIC Initial и подставляет её в I1.</string>
     <string name="generate_i1">Сгенерировать I1</string>

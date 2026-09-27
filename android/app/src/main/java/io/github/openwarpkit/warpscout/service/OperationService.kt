@@ -160,6 +160,11 @@ class OperationService : Service() {
                     }
                 }
                 if (currentOperation == "scan" && payload is JSONObject) {
+                    payload.optString("awgI1").takeIf(String::isNotBlank)?.let { selectedI1 ->
+                        activePayloadJson = JSONObject(activePayloadJson)
+                            .put("awgI1", selectedI1)
+                            .toString()
+                    }
                     val results = payload.optJSONArray("results")
                     var working = 0
                     var tornDown = 0
@@ -197,19 +202,24 @@ class OperationService : Service() {
         operations.update { current ->
             val endpoint = event.optJSONObject("endpoint")
             val rawPhase = event.optString("phase")
-            val discoveryAttemptStarted = current.operation in setOf("find-junk", "find-sni") &&
-                rawPhase in setOf("junk", "sni") && endpoint == null
+            val selectedI1 = if (rawPhase == "awg-i1-selected") event.optJSONObject("payload") else null
+            val i1AttemptStarted = current.operation == "scan" && rawPhase == "awg-i1"
+            val discoveryAttemptStarted = i1AttemptStarted ||
+                (current.operation in setOf("find-junk", "find-sni") &&
+                rawPhase in setOf("junk", "sni") && endpoint == null)
             val working = endpoint?.optBoolean("working") == true
             val durable = endpoint?.optBoolean("durable") != false
             val region = endpoint?.optString("region").orEmpty()
             val node = endpoint?.optString("node").orEmpty()
             current.copy(
+                i1Attempt = selectedI1?.optInt("attempt") ?: if (i1AttemptStarted) event.optInt("completed") else current.i1Attempt,
+                i1Total = if (i1AttemptStarted) event.optInt("total") else current.i1Total,
                 phase = localizedPhase(event.optString("phase"))
                     .ifBlank { event.optString("message").ifBlank { current.phase } },
                 completed = if (discoveryAttemptStarted) 0 else event.optInt("completed", current.completed),
                 total = if (discoveryAttemptStarted) 0 else event.optInt("total", current.total),
-                working = if (discoveryAttemptStarted) 0 else current.working + if (working && durable) 1 else 0,
-                tornDown = if (discoveryAttemptStarted) 0 else current.tornDown + if (working && !durable) 1 else 0,
+                working = selectedI1?.optInt("working") ?: if (discoveryAttemptStarted) 0 else current.working + if (working && durable) 1 else 0,
+                tornDown = selectedI1?.optInt("tornDown") ?: if (discoveryAttemptStarted) 0 else current.tornDown + if (working && !durable) 1 else 0,
                 regions = if (discoveryAttemptStarted) emptySet() else if (region.isBlank()) current.regions else current.regions + region,
                 nodes = if (discoveryAttemptStarted) emptySet() else if (node.isBlank()) current.nodes else current.nodes + node
             )
@@ -222,6 +232,8 @@ class OperationService : Service() {
         value.startsWith("Phase 2") -> getString(R.string.phase_tunnel_verification)
         value.startsWith("Speedtest") -> getString(R.string.phase_speed_test)
         value == "junk" -> getString(R.string.phase_find_junk)
+        value == "awg-i1" -> getString(R.string.phase_preparing)
+        value == "awg-i1-selected" -> getString(R.string.phase_tunnel_verification)
         value == "sni" -> getString(R.string.phase_find_sni)
         value == "handshake" -> getString(R.string.phase_handshake)
         value == "listening" -> getString(R.string.phase_listening)
@@ -276,6 +288,7 @@ class OperationService : Service() {
                         workingCount = finalState.working,
                         tornDownCount = finalState.tornDown,
                         bestEndpoint = finalState.bestEndpoint,
+                        optionsJson = activePayloadJson,
                         resultJson = finalState.latestResultJson
                     )
                 )

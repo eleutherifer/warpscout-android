@@ -464,7 +464,7 @@ func TestRenderMihomoJSON(t *testing.T) {
 	if dns, _ := p["dns"].([]any); len(dns) != 2 {
 		t.Errorf("dns must be a list of two resolvers:\n%s", conf)
 	}
-	if !strings.Contains(string(conf), "<r 2>") {
+	if !strings.Contains(string(conf), i1Default) {
 		t.Errorf("i1 must not be HTML-escaped:\n%s", conf)
 	}
 	var last int

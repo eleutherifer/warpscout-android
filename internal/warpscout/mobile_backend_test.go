@@ -145,6 +145,7 @@ func TestMobileRenderConfigFormats(t *testing.T) {
 	}{
 		{"wireguard", core.ScanOptions{Protocol: core.ProtocolWG}, core.ConfigWireGuard, []string{"[Interface]", "Endpoint = 188.114.96.1:2408"}},
 		{"amneziawg", core.ScanOptions{Protocol: core.ProtocolAWG}, core.ConfigAmneziaWG, []string{"Jc = 6", "Jmin = 10", "Jmax = 50"}},
+		{"selected-i1", core.ScanOptions{Protocol: core.ProtocolAWG, AWGI1: findJunkI1Second, AWGAutoI1: new(true)}, core.ConfigAmneziaWG, []string{"I1 = " + findJunkI1Second}},
 		{"usque", core.ScanOptions{Protocol: core.ProtocolMASQUEH3}, core.ConfigUSQUE, []string{`"endpoint_v4": "188.114.96.1"`, `"access_token": "masque-token"`}},
 		{"mihomo", core.ScanOptions{Protocol: core.ProtocolAWG}, core.ConfigMihomo, []string{"proxies:", "type: wireguard", "peers:", "persistent-keepalive: 25", "amnezia-wg-option:"}},
 	}
