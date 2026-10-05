@@ -236,7 +236,7 @@ jobs:
               -f tag_name="${GITHUB_REF_NAME}" ${PREVIOUS:+-f previous_tag_name="$PREVIOUS"} \
               --jq .body | sed -n '/^## New Contributors/,$p'
           } > release-notes.md
-      - uses: softprops/action-gh-release@3bb12739c298aeb8a4eeaf626c5b8d85266b0e65 # v2
+      - uses: softprops/action-gh-release@efb35369e0ad2afab669f228072c1b0d510eae64 # v3.0.3
         with:
           name: v${{ env.WARPSCOUT_VERSION_NAME }}
           body_path: release-notes.md
