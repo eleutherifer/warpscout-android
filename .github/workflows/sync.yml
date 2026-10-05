@@ -1,0 +1,29 @@
+name: Sync Fork
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # Запуск каждый день в полночь (по UTC)
+  workflow_dispatch: # Позволяет запускать синхронизацию вручную кнопкой
+
+jobs:
+  sync:
+    runs-edge: ubuntu-latest
+    steps:
+      - name: Sync upstream
+        uses: actions/checkout@v4
+      - name: Sync and merge
+        run: |
+          # Настраиваем гит
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@://github.com'
+          
+          # Добавляем репозиторий-источник
+          git remote add upstream https://github.com/openwarpkit/warpscout-android
+          git fetch upstream
+          
+          # Сливаем изменения из его ветки main (замените на master, если там master) в вашу текущую
+          git checkout main
+          git merge upstream/main --allow-unrelated-histories -m "Chore: sync with upstream"
+          
+          # Отправляем обновленный код в ваш репозиторий
+          git push origin main
